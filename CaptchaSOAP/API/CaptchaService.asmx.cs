@@ -1,8 +1,6 @@
-﻿using CaptchaSOAP.Captcha;
+﻿using CaptchaSOAP.API.Entities;
+using CaptchaSOAP.Captcha;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Web.Services;
 
 namespace CaptchaSOAP.API
@@ -17,15 +15,60 @@ namespace CaptchaSOAP.API
     // [System.Web.Script.Services.ScriptService]
     public class CaptchaService : System.Web.Services.WebService
     {
+        [WebMethod]
+        public CaptchaResponse GetCaptcha()
+        {
+            int width = 100;
+            int height = 36;
+            string captchaCode = CaptchaGenerator.GenerateCaptchaCode();
+            using (var m = MoLeCuLeZDB.GetTransient())
+            {
+                CaptchaResult captchaData = CaptchaGenerator.GenerateCaptchaImage(width, height, captchaCode);
+                var insertedId = m.ExecuteScalar<ulong>(
+                    "INSERT INTO captcha_session_tbl VALUES (?, ?, ?, ?);" +
+                    "SELECT LAST_INSERT_ID();", 
+                    0, 
+                    Convert.ToBase64String(captchaData.CaptchaBytes), 
+                    captchaCode, 
+                    DateTime.Now.AddMinutes(10)
+                );
+
+                
+                return new CaptchaResponse()
+                {
+                    CaptchaId = insertedId,
+                    CaptchaByteData = captchaData.CaptchaBytes
+            };
+            }
+        }
 
         [WebMethod]
-        public CaptchaResult GetCaptcha()
+        public bool ValidateCaptcha(ulong id, string captchaCode)
         {
-            int width = 224;
-            int height = 80;
-            string c = CaptchaGenerator.GenerateCaptchaCode();
-            CaptchaResult ret = CaptchaGenerator.GenerateCaptchaImage(width, height, c);
-            return ret;
+            // simple format validation
+            if (string.IsNullOrWhiteSpace(captchaCode) || captchaCode.Length == 0)
+                return false;
+
+            using (var m = MoLeCuLeZDB.GetTransient())
+            {
+                // check if id exists and if captcha is still valid
+                var hasId = m.ExecuteScalar<int>(
+                    "SELECT EXISTS(SELECT 1 FROM captcha_session_tbl WHERE id = ? AND NOW() < expiration LIMIT 1) as result", 
+                    id
+                ) == 1;
+
+                if (!hasId)
+                    return false;
+
+                // validate input from user
+                var captchaResult = m.ExecuteScalar<int>(
+                    "SELECT EXISTS(SELECT 1 FROM captcha_session_tbl WHERE id = ? AND captcha_code = ? LIMIT 1) as result",
+                    id,
+                    captchaCode
+                ) == 1;
+
+                return captchaResult;
+            }
         }
     }
 }

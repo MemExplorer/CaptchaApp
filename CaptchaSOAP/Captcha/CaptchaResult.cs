@@ -5,8 +5,7 @@ namespace CaptchaSOAP.Captcha
     public class CaptchaResult
     {
         public string CaptchaCode { get; set; }
-        public byte[] CaptchaByteData { get; set; }
-        //public string CaptchaBase64Data => Convert.ToBase64String(CaptchaByteData);
-        public long Timestamp { get; set; }
+        public byte[] CaptchaBytes { get; set; }
+        public DateTime Expiration { get; set; }
     }
 }

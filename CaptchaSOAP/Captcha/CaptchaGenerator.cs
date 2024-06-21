@@ -44,7 +44,7 @@ namespace CaptchaSOAP.Captcha
 
                 baseMap.Save(ms, ImageFormat.Png);
 
-                return new CaptchaResult { CaptchaCode = captchaCode, CaptchaByteData = ms.ToArray(), Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds() };
+                return new CaptchaResult { CaptchaCode = captchaCode, CaptchaBytes = ms.ToArray(), Expiration = DateTime.Now.AddMinutes(10) };
 
                 int GetFontSize(int imageWidth, int captchCodeCount)
                 {
