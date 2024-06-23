@@ -18,8 +18,8 @@ namespace CaptchaSOAP.API
         [WebMethod]
         public CaptchaResponse GetCaptcha()
         {
-            int width = 100;
-            int height = 36;
+            int width = 1200;
+            int height = 738;
             string captchaCode = CaptchaGenerator.GenerateCaptchaCode();
             using (var m = MoLeCuLeZDB.GetTransient())
             {
@@ -43,11 +43,11 @@ namespace CaptchaSOAP.API
         }
 
         [WebMethod]
-        public bool ValidateCaptcha(ulong id, string captchaCode)
+        public CaptchaValidationResponse ValidateCaptcha(ulong id, string captchaCode)
         {
             // simple format validation
             if (string.IsNullOrWhiteSpace(captchaCode) || captchaCode.Length == 0)
-                return false;
+                return CaptchaValidationResponse.CreateResponse(false);
 
             using (var m = MoLeCuLeZDB.GetTransient())
             {
@@ -58,7 +58,7 @@ namespace CaptchaSOAP.API
                 ) == 1;
 
                 if (!hasId)
-                    return false;
+                    return CaptchaValidationResponse.CreateResponse(false);
 
                 // validate input from user
                 var captchaResult = m.ExecuteScalar<int>(
@@ -67,7 +67,7 @@ namespace CaptchaSOAP.API
                     captchaCode
                 ) == 1;
 
-                return captchaResult;
+                return CaptchaValidationResponse.CreateResponse(captchaResult);
             }
         }
     }

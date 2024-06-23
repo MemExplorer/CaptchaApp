@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+	xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="CaptchaApp.MainPage"
+	xmlns:CaptchaApp="clr-namespace:CaptchaApp"
+    Loaded="ContentPage_Loaded"
+    Title="">
+    <ScrollView BackgroundColor="#1e1e1e">
+        <Grid RowDefinitions="Auto, *, Auto">
+            <VerticalStackLayout
+                Grid.Row="0"
+                Padding="30,0"
+                Spacing="25">
+                <Label
+                    TextColor="White"
+                Text="Simple Captcha"
+                Style="{StaticResource Headline}" />
+                <Border Padding="20" 
+                        StrokeShape="RoundRectangle 10"
+                        BackgroundColor="GhostWhite">
+                    <VerticalStackLayout Spacing="20">
+                        <Image Source="dotnet_bot.png"
+                           x:Name="captchaImg"
+                           Aspect="AspectFit"
+                           MaximumWidthRequest="300" />
+                        <Grid ColumnDefinitions="80*, 20*"
+                              ColumnSpacing="10">
+                            <Border Grid.Column="0"
+                                    Stroke="Black"
+                                    StrokeThickness="2"
+                                    StrokeShape="RoundRectangle 10">
+                                <Entry
+                                    TextColor="Black"
+                                    Grid.Column="1"
+                                    Placeholder="Type the text..."
+                                    x:Name="captchaInput" />
+                            </Border>
+                            <Button Grid.Column="1" 
+                                    x:Name="RefreshBtn"
+                                    Clicked="RefreshBtn_Clicked"
+                                    FontFamily="FontAwesome"
+                                    BackgroundColor="LightGray"
+                                    Text="{x:Static CaptchaApp:IconFont.ArrowsRotate}"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+            <Button
+                Margin="10, 10, 10, 20"
+                Grid.Row="2"
+                x:Name="SubmitBtn"
+                Text="Submit" 
+                TextColor="Black"
+                BackgroundColor="GhostWhite"
+                Clicked="SubmitBtn_Clicked"
+                HorizontalOptions="Fill" />
+        </Grid>
+    </ScrollView>
+</ContentPage>

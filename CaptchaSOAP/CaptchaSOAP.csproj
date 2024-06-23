@@ -185,6 +185,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="API\Entities\CaptchaResponse.cs" />
+    <Compile Include="API\Entities\CaptchaValidationResponse.cs" />
     <Compile Include="Captcha\CaptchaGenerator.cs" />
     <Compile Include="Captcha\CaptchaResult.cs" />
     <Compile Include="MoLeCuLeZDB.cs" />
