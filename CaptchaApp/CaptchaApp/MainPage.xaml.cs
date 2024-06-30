@@ -43,7 +43,18 @@ public partial class MainPage : ContentPage
         var validateCaptcha = await _client.ValidateCaptchaAsync(CaptchaId.Value, _captchaInput.Text);
         if (validateCaptcha != null)
         {
-            Debug.Assert(validateCaptcha.Result == true);
+            if (validateCaptcha.Result)
+            {
+                Application.Current.MainPage.DisplayAlert("Success!", "Welcome User!", "OK");
+            }
+            else
+            {
+                Application.Current.MainPage.DisplayAlert("Failed", "Incorrect Code", "OK");
+            }
+        }
+        else
+        {
+            Application.Current.MainPage.DisplayAlert("Error", "Invalid Response", "OK");
         }
     }
 
