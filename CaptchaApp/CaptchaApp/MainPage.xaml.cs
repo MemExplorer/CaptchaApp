@@ -8,9 +8,9 @@ namespace CaptchaApp;
 public partial class MainPage : ContentPage
 {
     // change host according to your local ip
-    private static string HOST = "http://192.168.254.109:56462";
+    private static string HOST = "http://192.168.157.112:8081";
     private static string CAPTCHA_ENDPOINT = HOST + "/API/CaptchaService.asmx";
-    private CaptchaSoapClient _client;
+    private CaptchaRepository _client;
     private Image _captchaImageElement;
     private Entry _captchaInput;
     private ulong? CaptchaId { get; set; } = null;
@@ -18,7 +18,7 @@ public partial class MainPage : ContentPage
     {
         InitializeComponent();
         var soapClient = new SOAPClient(CAPTCHA_ENDPOINT);
-        _client = new CaptchaSoapClient(soapClient);
+        _client = new CaptchaRepository(soapClient);
         _captchaImageElement = (Image)FindByName("captchaImg");
         _captchaInput = (Entry)FindByName("captchaInput");
     }
@@ -33,6 +33,11 @@ public partial class MainPage : ContentPage
             var stream = new MemoryStream(imageData);
             _captchaImageElement.Source = ImageSource.FromStream(() => stream);
         }
+        else
+        {
+            Page? pageCtx = Application.Current?.MainPage;
+            pageCtx?.DisplayAlert("Error", "Failed to fetch captcha!", "OK");
+        }
     }
 
     private async void SubmitBtn_Clicked(object sender, EventArgs e)
@@ -40,21 +45,22 @@ public partial class MainPage : ContentPage
         if (CaptchaId == null)
             return;
 
+        Page? pageCtx = Application.Current?.MainPage;
         var validateCaptcha = await _client.ValidateCaptchaAsync(CaptchaId.Value, _captchaInput.Text);
         if (validateCaptcha != null)
         {
             if (validateCaptcha.Result)
             {
-                Application.Current.MainPage.DisplayAlert("Success!", "Welcome User!", "OK");
+                pageCtx?.DisplayAlert("Success!", "Welcome User!", "OK");
             }
             else
             {
-                Application.Current.MainPage.DisplayAlert("Failed", "Incorrect Code", "OK");
+                pageCtx?.DisplayAlert("Failed", "Incorrect Code", "OK");
             }
         }
         else
         {
-            Application.Current.MainPage.DisplayAlert("Error", "Invalid Response", "OK");
+            pageCtx?.DisplayAlert("Error", "Failed to fetch captcha!", "OK");
         }
     }
 

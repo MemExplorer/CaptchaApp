@@ -4,10 +4,10 @@ using CaptchaApp.SOAP;
 
 namespace CaptchaApp.CaptchaSOAP;
 
-internal class CaptchaSoapClient
+internal class CaptchaRepository
 {
     private SOAPClient _client;
-    public CaptchaSoapClient(SOAPClient client)
+    public CaptchaRepository(SOAPClient client)
     {
         _client = client;
     }

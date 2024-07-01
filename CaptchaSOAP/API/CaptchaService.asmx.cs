@@ -15,15 +15,23 @@ namespace CaptchaSOAP.API
     // [System.Web.Script.Services.ScriptService]
     public class CaptchaService : System.Web.Services.WebService
     {
+        // captcha resolution
+        const int CAPTCHA_WIDTH = 1200;
+        const int CAPTCHA_HEIGHT = 738;
+
         [WebMethod]
         public CaptchaResponse GetCaptcha()
         {
-            int width = 1200;
-            int height = 738;
+            // generate random code for captcha
             string captchaCode = CaptchaGenerator.GenerateCaptchaCode();
+
+            // get new instance of database
             using (var m = MoLeCuLeZDB.GetTransient())
             {
-                CaptchaResult captchaData = CaptchaGenerator.GenerateCaptchaImage(width, height, captchaCode);
+                // generate captcha info
+                CaptchaResult captchaData = CaptchaGenerator.GenerateCaptchaImage(CAPTCHA_WIDTH, CAPTCHA_HEIGHT, captchaCode);
+
+                // insert captcha info into database and return the id of the inserted info
                 var insertedId = m.ExecuteScalar<ulong>(
                     "INSERT INTO captcha_session_tbl VALUES (?, ?, ?, ?);" +
                     "SELECT LAST_INSERT_ID();", 
@@ -33,12 +41,12 @@ namespace CaptchaSOAP.API
                     DateTime.Now.AddMinutes(10)
                 );
 
-                
+                // create captcha response
                 return new CaptchaResponse()
                 {
                     CaptchaId = insertedId,
                     CaptchaByteData = captchaData.CaptchaBytes
-            };
+                };
             }
         }
 
@@ -49,6 +57,7 @@ namespace CaptchaSOAP.API
             if (string.IsNullOrWhiteSpace(captchaCode) || captchaCode.Length == 0)
                 return CaptchaValidationResponse.CreateResponse(false);
 
+            // get new instance of database
             using (var m = MoLeCuLeZDB.GetTransient())
             {
                 // check if id exists and if captcha is still valid
@@ -67,6 +76,7 @@ namespace CaptchaSOAP.API
                     captchaCode
                 ) == 1;
 
+                // create captcha validation response
                 return CaptchaValidationResponse.CreateResponse(captchaResult);
             }
         }

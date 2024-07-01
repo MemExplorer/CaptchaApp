@@ -8,12 +8,12 @@ namespace CaptchaSOAP
     {
         // Regex pattern that captures all single question mark that is not inside a double single-quote statement
         private static Regex PLACEHOLDER_REPLACE_PATTERN = new Regex("(?<!\\?)\\?(?!\\?)(?=(?:[^']*'[^']*')*[^']*$)", RegexOptions.Compiled);
+        private static string CONN_STR = "server=localhost;uid=root;database=moleculezdb";
         private MySqlConnection _connection;
         private MoLeCuLeZDB()
         {
             // initialize database connection
-            string fConnStr = "server=localhost;uid=root;database=moleculezdb";
-            _connection = new MySqlConnection(fConnStr);
+            _connection = new MySqlConnection(CONN_STR);
             _connection.Open();
             if (_connection.State != System.Data.ConnectionState.Open)
                 throw new Exception("Database connection Error!");
@@ -21,6 +21,7 @@ namespace CaptchaSOAP
 
         internal static MoLeCuLeZDB GetTransient() => new MoLeCuLeZDB();
 
+        // replace placeholders with id to replace them values according to their position in the `sqlArgs`
         private MySqlCommand PrepareCommand(string query, params object[] sqlArgs)
         {
             int replaceCounter = 0;
